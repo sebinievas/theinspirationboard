@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block page_title %}TheInspirationBoard.com{% endblock %}</title>
+	<link rel="stylesheet" type="text/css" media="screen" href="{{ asset('bundles/tibinspirationboard/css/960gs.css') }}" />
+	<link rel="stylesheet" type="text/css" media="screen" href="{{ asset('bundles/tibinspirationboard/js/contextmenu/contextmenu.css') }}" />
+	<link rel="stylesheet" type="text/css" media="screen" href="{{ asset('bundles/tibinspirationboard/js/fancybox2/jquery.fancybox.css') }}" />
+	<link rel="stylesheet" type="text/css" media="screen" href="{{ asset('bundles/tibinspirationboard/js/royalslider/css/royalslider.css') }}" />
+	<link rel="stylesheet" type="text/css" media="screen" href="{{ asset('bundles/tibinspirationboard/js/royalslider/royalslider-skins/default/default.css') }}" />
+	<link rel="stylesheet" type="text/css" media="screen" href="{{ asset('bundles/tibinspirationboard/css/tib.css') }}" />
+	
+	
+	
+	<!-- 
+	<script type="text/javascript" src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+	 -->
+	
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/jquery.tools.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/jquery.ui.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/kinetic.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/contextmenu/jquery.contextmenu.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/fancybox2/jquery.fancybox.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/royalslider/royal-slider-8.1.js') }}"></script>
+	
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/TMath.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/app/AppConfig.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/app/JooText.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/app/JooImage.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/app/JooLib.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/app/JooGroup.js') }}"></script>
+	
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/imagemanager/js/mcimagemanager.js') }}"></script>
+	
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/tib.api.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bundles/tibinspirationboard/js/tib.js') }}"></script>
+	
+	
+</head>
+<body>
+	<header>
+		<section class="container_16">
+			<div class="grid_7">
+				<a href="/"><img class="logo" src="{{ asset('bundles/tibinspirationboard/images/tib-logo.png') }}" alt="The Inspiration Board" /></a>
+			</div>
+			<div class="right grid_9">
+				<nav class="main">
+					<a id="trigger-createboard" href="#">create a board</a>
+				</nav>
+			</div>
+		</section>
+		<section class="top-right">
+			<nav>
+				<a id="trigger-about" href="#">about us</a> | <a id="trigger-credentials" href="#">register</a> 
+				
+			{% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+				{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
+				<a href="{{ path('fos_user_security_logout') }}">
+				{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
+				</a>
+			{% else %}
+				<a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
+			{% endif %}
+			</nav>
+		</section>
+	</header>
+	
+	<section id="sidemenu">
+		<a href="#" class="control-picture"></a>
+		<a href="#dialog-text" class="control-text fancybox"></a>
+	</section>
+	
+	<div id="frame-container">
+<!--            <div class="frame top"></div>-->
+		<div class="frame board">
+			<div id="frame-canvas"></div>
+		</div>
+<!--            <div class="frame bottom"></div>-->
+	</div>
+	
+	<section id="tib-drawer">
+		<div class="handle"></div>
+		<ul class="items">
+			<li class="item"><span data-type="labels1" class="labels1"></span></li>
+			<li class="item"><span data-type="labels2" class="labels2"></span></li>
+			<li class="item"><span data-type="paperclips" class="paperclips"></span></li>
+			<li class="item"><span data-type="pushpins" class="pushpins"></span></li>
+			<li class="item"><span data-type="clothespins" class="clothespins"></span></li>
+			<li class="item"><span data-type="spool" class="spool"></span></li>
+		</ul>
+	</section>
+	
+	{% include 'TibInspirationBoardBundle::context-menu.html.twig' %}
+	
+	<div style="display:none;">
+		<div class="upload-photo">
+			<iframe id="iframe-upload-photo" src="about:blank"></iframe>
+		</div>
+	</div>
+	
+	<div class="fancybox-wrapper">
+		<div id="dialog-create-board">
+			<div class="container">
+				<form class="tib">
+					<label for="board_name">Name your board</label>
+					<input type="text" id="board_name" name="board_name" value="" />
+				
+					<label for="board_frame">Choose your frame</label>
+					<div id="frame-gallery" class="royalSlider default" style="margin-bottom: 200px;">
+						<ul class="royalSlidesContainer">
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_red.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_red.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/wooden_frame_red.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_grey.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_grey.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/wooden_frame_grey.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_turquoise.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_turquoise.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/wooden_frame_turquoise.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_white.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/wooden_frame_white.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/wooden_frame_white.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_green2.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_green2.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/swirly_green2.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_grey2.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_grey2.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/swirly_grey2.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_pink2.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_pink2.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/swirly_pink2.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_turquoise2.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_turquoise2.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/swirly_turquoise2.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_yellow2.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/thumbs/swirly_yellow2.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/swirly_yellow2.png') }}"></li>
+						</ul>
+					</div>
+					
+					<label for="board_bg">Choose your background</label>
+					<div id="background-gallery" class="royalSlider default" style="margin-bottom: 200px;">
+						<ul class="royalSlidesContainer">
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/bg-corkboard.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/bg-corkboard.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/bg-corkboard.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/bg-chalkboard.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/bg-chalkboard.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/bg-chalkboard.png') }}"></li>
+							<li class="royalSlide" data-thumb="{{ asset('bundles/tibinspirationboard/images/frame/bg-chickenwire.png') }}" data-src="{{ asset('bundles/tibinspirationboard/images/frame/bg-chickenwire.png') }}" data-target="{{ asset('bundles/tibinspirationboard/images/frame/bg-chickenwire.png') }}"></li>
+						</ul>
+					</div>
+				
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="fancybox-wrapper">
+		<div id="dialog-text">
+			<form class="tib">
+				<label for="label_text">Add Text</label>
+				<input type="text" id="label_text" name="label_text" value="" />
+				<input type="submit" class="button" name="submit" value="Insert" />
+			</form>
+		</div>
+	</div>
+	
+	<div class="fancybox-wrapper">
+		<div id="dialog-frame">
+			<form class="tib">
+				<label for="frame">Choose your frame</label>
+				<input type="hidden" name=""/>
+				<input type="submit" class="button" name="submit" value="Insert" />
+			</form>
+		</div>
+	</div>
+	
+	<div class="fancybox-wrapper">
+		<div id="dialog-background">
+			<form class="tib">
+				<label for="label_text">Choose your background</label>
+				<input type="text" id="label_text" name="label_text" value="" />
+				<input type="submit" class="button" name="submit" value="Insert" />
+			</form>
+		</div>
+	</div>
+	
+	<div class="fancybox-wrapper">
+		<div id="dialog-about" style="width: 600px;">
+			<section>
+				<h1>About The Inspiration Board</h1>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			</section>
+		</div>
+	</div>
+	
+	<div class="fancybox-wrapper">
+		<div id="dialog-credentials" style="width: 600px;">
+			<iframe class="credentials" src="{{ path('fos_user_registration_register') }}"></frame>
+		</div>
+	</div>
+
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '104208866340405',
+      status     : true, 
+      cookie     : true,
+      xfbml      : true,
+      oauth      : true,
+    });
+  };
+  (function(d){
+     var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     d.getElementsByTagName('head')[0].appendChild(js);
+   }(document));
+</script>
+</body>
+</html>
